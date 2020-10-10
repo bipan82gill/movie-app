@@ -4,14 +4,29 @@ const IMGPATH = "https://image.tmdb.org/t/p/w1280";
 const SEARCHAPI =
     "https://api.themoviedb.org/3/search/movie?&api_key=04c35731a5ee918f014970082a0088b1&query=";
 
-async function getMovies(){
-    const resp = await fetch(APIURL);
+    const main = document.getElementById('main');
+    const form = document.getElementById('form');
+    const serach =document.getElementById('search');
+    
+    getMovies(APIURL);
+
+    async function getMovies(url){
+    const resp = await fetch(url);
     const respData = await resp.json();
 
     console.log(respData);
+    showMovies(respData.results);
 
-    respData.results.forEach(movie =>{
-        const { poster_path, title, vote_average } = movie;
+
+return respData;
+ }
+
+function showMovies(movies){
+
+    main.innerHTML ='';
+
+    movies.forEach(movie =>{
+        const { poster_path, title, vote_average, overview} = movie;
         const movieEl = document.createElement('div');
         movieEl.classList.add('movie');
         movieEl.innerHTML =`
@@ -21,20 +36,33 @@ async function getMovies(){
             alt="${title}">
             <div class="movie-info">
                 <h3>${title}</h3>
-                <span> ${vote_average}</span>
+                <span class ="${getClassByRate(vote_average)}">${vote_average}</span>
+            </div>
+            <div class="overview">
+            <h3>Overview:</h3>
+                ${overview}            
             </div>
        
         `;
-        document.body.appendChild(movieEl);
-    })
-
-    // respData.results.forEach((movie)=>{
-    //     const img = document.createElement("img");
-    //     img.src= IMGPATH + movie.poster_path;
-
-    //     document.body.appendChild(img);
+        main.appendChild(movieEl);
+    });
     };
+function getClassByRate(vote){
+    if(vote >= 7){
+        return 'green';
+    }else if(vote >=5){
+        return 'orange';
+    }else{
+        return 'red';
+    }
+}
+form.addEventListener('submit',(e)=>{
+    e.preventDefault();
 
-    // return respData;
+    const serachTerm = serach.value;
 
-getMovies();
+    if(serachTerm){
+        getMovies(SEARCHAPI + serachTerm )
+        serachTerm.value ='';
+    }
+})
